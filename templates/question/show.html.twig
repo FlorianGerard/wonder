@@ -1,11 +1,32 @@
 {% extends "base.html.twig" %}
 
+{% block styleSheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/question_show.css') }}">
+{% endblock %}
 
 {% block title %}{{ question.title }}{% endblock %}
 
 {% block body %}
-
-  <h1>{{ question.title }}</h1>
-  <p>{{ question.content }}</p>
+<div class="block">
+  <div class="d-flex flex-row-nowrap">
+    <div class="d-flex flex-column">
+      <div class="d-flex flex-row-nowrap align-items-center pb-30">
+        <h3 class="mr-10">{{ question.title }}</h3>
+        <div class="question-tag">QUESTION</div>
+        <img class="avatar ml-auto" src="https://randomuser.me/api/portraits/men/52.jpg">
+      </div>
+      <p class="question-text">{{ question.content }}</p>
+      <div class="separator"></div>
+      <h3 class="pb-20">Votre réponse</h3>
+      <div class="comment-form">
+        {{ form_start(form) }}
+        {{ form_rest(form) }}
+          <button class="btn btn-primary pt-20">Envoyer</button>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
