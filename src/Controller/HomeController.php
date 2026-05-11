@@ -13,13 +13,17 @@ class HomeController extends AbstractController
 {
 
     #[Route('/', name: 'home')]
-    public function index(ManagerRegistry $doctrine): Response
+    public function index(QuestionRepository $questionRepo): Response
     {
-        $questionRepo = $doctrine->getRepository(Question::class);
-        $questions = $questionRepo->findAll();
+        $questions = $questionRepo->createQueryBuilder('q')
+            ->leftJoin('q.author', 'a')
+            ->addSelect('a')
+            ->orderBy('q.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
 
         return $this->render('home/index.html.twig', [
-            'questions' => $questions
+            'questions' => $questions,
         ]);
     }
 }
