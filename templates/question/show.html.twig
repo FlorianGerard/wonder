@@ -28,7 +28,7 @@
           <a href="{{ path('user', {id : comment.author.id }) }}" class="d-flex flex-row-nowrap align-items-center pb-10">
             <img class="avatar mr-10" src="{{ asset(comment.author.picture) }}">
             <p class="clickable">{{ comment.author.fullname }}</p>
-            <small class="ml-auto">{{ comment.createdAt | ago(locale="fr") }}</small>
+            <small class="ml-auto p-5">{{ comment.createdAt | ago(locale="fr") }}</small>
           </a>
           <p class="question-response-text">{{ comment.content }}</p>
         </div>
@@ -44,7 +44,7 @@
         {{ form_end(form)}}
       </div>
       {% endif %}
-    </div>   
+    </div>
   </div>
 </div>
 

@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
+use App\Repository\QuestionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\QuestionRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
@@ -21,7 +22,7 @@ class Question
     #[Assert\Length(min: 20, minMessage: 'Veuillez détailler votre titre', max: 255, maxMessage: 'Le titre de votre question est trop long')]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'Veuillez détailler votre question')]
     #[Assert\Length(min: 100, minMessage: 'Veuillez détailler votre question')]
     private ?string $content = null;
@@ -29,10 +30,10 @@ class Question
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::SMALLINT)]
     private ?int $rating = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::SMALLINT)]
     private ?int $nbrOfResponse = null;
 
     #[ORM\OneToMany(mappedBy: 'question', targetEntity: Comment::class, orphanRemoval: true)]
@@ -42,9 +43,13 @@ class Question
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
+    #[ORM\OneToMany(mappedBy: 'question', targetEntity: Vote::class)]
+    private Collection $votes;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->votes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -57,7 +62,7 @@ class Question
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(string $title): static
     {
         $this->title = $title;
 
@@ -69,7 +74,7 @@ class Question
         return $this->content;
     }
 
-    public function setContent(string $content): self
+    public function setContent(string $content): static
     {
         $this->content = $content;
 
@@ -81,7 +86,7 @@ class Question
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -93,7 +98,7 @@ class Question
         return $this->rating;
     }
 
-    public function setRating(int $rating): self
+    public function setRating(int $rating): static
     {
         $this->rating = $rating;
 
@@ -105,7 +110,7 @@ class Question
         return $this->nbrOfResponse;
     }
 
-    public function setNbrOfResponse(int $nbrOfResponse): self
+    public function setNbrOfResponse(int $nbrOfResponse): static
     {
         $this->nbrOfResponse = $nbrOfResponse;
 
@@ -120,7 +125,7 @@ class Question
         return $this->comments;
     }
 
-    public function addComment(Comment $comment): self
+    public function addComment(Comment $comment): static
     {
         if (!$this->comments->contains($comment)) {
             $this->comments->add($comment);
@@ -130,7 +135,7 @@ class Question
         return $this;
     }
 
-    public function removeComment(Comment $comment): self
+    public function removeComment(Comment $comment): static
     {
         if ($this->comments->removeElement($comment)) {
             // set the owning side to null (unless already changed)
@@ -147,9 +152,39 @@ class Question
         return $this->author;
     }
 
-    public function setAuthor(?User $author): self
+    public function setAuthor(?User $author): static
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Vote>
+     */
+    public function getVotes(): Collection
+    {
+        return $this->votes;
+    }
+
+    public function addVote(Vote $vote): static
+    {
+        if (!$this->votes->contains($vote)) {
+            $this->votes->add($vote);
+            $vote->setQuestion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVote(Vote $vote): static
+    {
+        if ($this->votes->removeElement($vote)) {
+            // set the owning side to null (unless already changed)
+            if ($vote->getQuestion() === $this) {
+                $vote->setQuestion(null);
+            }
+        }
 
         return $this;
     }
